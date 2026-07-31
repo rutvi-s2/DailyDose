@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const generateContent = vi.fn();
-vi.mock("@google/generative-ai", () => ({
-  GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
-    getGenerativeModel: () => ({ generateContent }),
+vi.mock("@google/genai", () => ({
+  GoogleGenAI: vi.fn().mockImplementation(() => ({
+    models: { generateContent },
   })),
 }));
 
@@ -49,16 +49,14 @@ describe("generateBriefing", () => {
 
   it("returns content and sources from the model response", async () => {
     generateContent.mockResolvedValue({
-      response: {
-        text: () => "Here is what's new about the NBA.",
-        candidates: [
-          {
-            groundingMetadata: {
-              groundingChunks: [{ web: { title: "ESPN", uri: "https://espn.com/x" } }],
-            },
+      text: "Here is what's new about the NBA.",
+      candidates: [
+        {
+          groundingMetadata: {
+            groundingChunks: [{ web: { title: "ESPN", uri: "https://espn.com/x" } }],
           },
-        ],
-      },
+        },
+      ],
     });
     const out = await generateBriefing("NBA");
     expect(out.content).toContain("NBA");

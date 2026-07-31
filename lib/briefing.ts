@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 export type Source = { title: string; url: string };
 export type GeneratedBriefing = { content: string; sources: Source[] };
@@ -39,17 +39,19 @@ export async function generateBriefing(
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
+  const ai = new GoogleGenAI({ apiKey });
+  const result = await ai.models.generateContent({
     model: MODEL,
-    systemInstruction: SYSTEM_INSTRUCTION,
-    // Installed @google/generative-ai@0.21.0 types the Google Search grounding
-    // tool as `googleSearchRetrieval` (not `googleSearch` as in newer SDKs).
-    tools: [{ googleSearchRetrieval: {} } as any],
+    contents: buildPrompt(title, description),
+    config: {
+      systemInstruction: SYSTEM_INSTRUCTION,
+      // gemini-2.5-flash requires the current `googleSearch` grounding tool
+      // (the `googleSearchRetrieval` key is for the deprecated 1.5-era API).
+      tools: [{ googleSearch: {} }],
+    },
   });
 
-  const result = await model.generateContent(buildPrompt(title, description));
-  const content = result.response.text();
-  const sources = parseGrounding(result.response.candidates?.[0]);
+  const content = result.text ?? "";
+  const sources = parseGrounding(result.candidates?.[0]);
   return { content, sources };
 }
