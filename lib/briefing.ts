@@ -1,16 +1,22 @@
-import { GoogleGenAI } from "@google/genai";
+import Anthropic from "@anthropic-ai/sdk";
 
 export type Source = { title: string; url: string };
 export type GeneratedBriefing = { content: string; sources: Source[] };
 
-// `gemini-flash-latest` is a rolling alias that always points at the current
-// stable Flash model, so it won't 404 when a specific dated version is retired.
-const MODEL = "gemini-flash-latest";
+// Haiku is plenty for summarizing search results into a short briefing and
+// keeps per-briefing cost to a fraction of a cent. Bump to a larger model here
+// if you want richer output.
+const MODEL = "claude-haiku-4-5";
+
+// Cap searches per briefing so a single generation can't rack up many billed
+// web searches ($10 / 1000).
+const MAX_SEARCHES = 5;
 
 const SYSTEM_INSTRUCTION =
-  "You write concise, current daily briefings. Lead with what is new or notable. " +
-  "Be factual, cite via the provided search grounding, and keep it under ~400 words. " +
-  "Use short markdown sections. If little is new, say so plainly.";
+  "You write concise, current daily briefings. Search the web for the latest " +
+  "information, then lead with what is new or notable. Be factual, cite your " +
+  "sources, and keep it under ~400 words. Use short markdown sections. If little " +
+  "is new, say so plainly.";
 
 export function buildPrompt(title: string, description?: string | null): string {
   const lines = [`Write today's briefing about: ${title}.`];
@@ -21,40 +27,51 @@ export function buildPrompt(title: string, description?: string | null): string 
   return lines.join("\n");
 }
 
-export function parseGrounding(candidate: unknown): Source[] {
-  const chunks = (candidate as any)?.groundingMetadata?.groundingChunks;
-  if (!Array.isArray(chunks)) return [];
+// Extract the briefing text (all `text` blocks concatenated) and the cited
+// sources (from `web_search_result_location` citations on those text blocks),
+// deduped by URL, from a Messages API response `content` array.
+export function parseResponse(content: unknown): GeneratedBriefing {
+  const blocks = Array.isArray(content) ? content : [];
+  const textParts: string[] = [];
   const sources: Source[] = [];
-  for (const chunk of chunks) {
-    const web = chunk?.web;
-    if (web?.uri) {
-      sources.push({ title: web.title ?? web.uri, url: web.uri });
+  const seen = new Set<string>();
+
+  for (const block of blocks) {
+    if ((block as any)?.type !== "text") continue;
+    const text = (block as any).text;
+    if (typeof text === "string") textParts.push(text);
+
+    const citations = (block as any).citations;
+    if (!Array.isArray(citations)) continue;
+    for (const c of citations) {
+      const url = c?.url;
+      if (typeof url === "string" && url && !seen.has(url)) {
+        seen.add(url);
+        sources.push({ title: c.title ?? url, url });
+      }
     }
   }
-  return sources;
+
+  return { content: textParts.join("").trim(), sources };
 }
 
 export async function generateBriefing(
   title: string,
   description?: string | null,
 ): Promise<GeneratedBriefing> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
 
-  const ai = new GoogleGenAI({ apiKey });
-  const result = await ai.models.generateContent({
+  const client = new Anthropic({ apiKey });
+  const message = await client.messages.create({
     model: MODEL,
-    contents: buildPrompt(title, description),
-    config: {
-      systemInstruction: SYSTEM_INSTRUCTION,
-      // Current Gemini models require the `googleSearch` grounding tool
-      // (the `googleSearchRetrieval` key is for the deprecated 1.5-era API).
-      tools: [{ googleSearch: {} }],
-    },
+    max_tokens: 2048,
+    system: SYSTEM_INSTRUCTION,
+    messages: [{ role: "user", content: buildPrompt(title, description) }],
+    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: MAX_SEARCHES }],
   });
 
-  const content = result.text ?? "";
-  if (content.trim() === "") throw new Error("Gemini returned empty content");
-  const sources = parseGrounding(result.candidates?.[0]);
+  const { content, sources } = parseResponse(message.content);
+  if (content === "") throw new Error("Claude returned empty content");
   return { content, sources };
 }

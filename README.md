@@ -7,7 +7,7 @@ Daily briefings on the topics you care about.
 1. `npm install`
 2. Copy `.env.example` to `.env` and fill in:
    - `DATABASE_URL` — a Postgres connection string (Neon/Supabase free tier works)
-   - `GEMINI_API_KEY` — a Google AI Studio key (free tier)
+   - `ANTHROPIC_API_KEY` — a Claude API key from console.anthropic.com (used for briefings + web search)
    - `AUTH_SECRET` — run `openssl rand -base64 32`
 3. `npx prisma migrate dev` to create the schema
 4. `npm run dev` and open http://localhost:3000
