@@ -52,6 +52,7 @@ export async function generateBriefing(
   });
 
   const content = result.text ?? "";
+  if (content.trim() === "") throw new Error("Gemini returned empty content");
   const sources = parseGrounding(result.candidates?.[0]);
   return { content, sources };
 }

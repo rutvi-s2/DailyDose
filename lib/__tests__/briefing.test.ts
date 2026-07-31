@@ -67,4 +67,32 @@ describe("generateBriefing", () => {
     generateContent.mockRejectedValue(new Error("rate limited"));
     await expect(generateBriefing("NBA")).rejects.toThrow("rate limited");
   });
+
+  it("throws when model returns empty content", async () => {
+    generateContent.mockResolvedValue({
+      text: "",
+      candidates: [
+        {
+          groundingMetadata: {
+            groundingChunks: [{ web: { title: "ESPN", uri: "https://espn.com/x" } }],
+          },
+        },
+      ],
+    });
+    await expect(generateBriefing("NBA")).rejects.toThrow("Gemini returned empty content");
+  });
+
+  it("throws when model returns whitespace-only content", async () => {
+    generateContent.mockResolvedValue({
+      text: "   \n\t  ",
+      candidates: [
+        {
+          groundingMetadata: {
+            groundingChunks: [{ web: { title: "ESPN", uri: "https://espn.com/x" } }],
+          },
+        },
+      ],
+    });
+    await expect(generateBriefing("NBA")).rejects.toThrow("Gemini returned empty content");
+  });
 });
