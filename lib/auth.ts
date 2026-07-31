@@ -10,6 +10,19 @@ const credentialsSchema = z.object({
   password: z.string().min(1),
 });
 
+export async function authorizeCredentials(
+  raw: unknown
+): Promise<{ id: string; email: string; name: string | null } | null> {
+  const parsed = credentialsSchema.safeParse(raw);
+  if (!parsed.success) return null;
+  const { email, password } = parsed.data;
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user?.passwordHash) return null;
+  const ok = await verifyPassword(password, user.passwordHash);
+  if (!ok) return null;
+  return { id: user.id, email: user.email, name: user.name };
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
@@ -17,16 +30,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: { email: {}, password: {} },
-      async authorize(raw) {
-        const parsed = credentialsSchema.safeParse(raw);
-        if (!parsed.success) return null;
-        const { email, password } = parsed.data;
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user?.passwordHash) return null;
-        const ok = await verifyPassword(password, user.passwordHash);
-        if (!ok) return null;
-        return { id: user.id, email: user.email, name: user.name };
-      },
+      authorize: authorizeCredentials,
     }),
   ],
   callbacks: {
