@@ -1,0 +1,24 @@
+# Wassup
+
+Daily briefings on the topics you care about.
+
+## Setup
+
+1. `npm install`
+2. Copy `.env.example` to `.env` and fill in:
+   - `DATABASE_URL` — a Postgres connection string (Neon/Supabase free tier works)
+   - `GEMINI_API_KEY` — a Google AI Studio key (free tier)
+   - `AUTH_SECRET` — run `openssl rand -base64 32`
+3. `npx prisma migrate dev` to create the schema
+4. `npm run dev` and open http://localhost:3000
+
+## Testing
+
+`npm test`
+
+## How it works
+
+- Sign up / sign in (email + password).
+- Add topics to your wall; click one for a web-grounded briefing.
+- Briefings cache for 24h; Refresh forces a new one.
+- Limit: 10 briefing generations per user per day.
