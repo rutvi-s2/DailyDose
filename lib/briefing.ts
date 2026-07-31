@@ -3,7 +3,9 @@ import { GoogleGenAI } from "@google/genai";
 export type Source = { title: string; url: string };
 export type GeneratedBriefing = { content: string; sources: Source[] };
 
-const MODEL = "gemini-2.5-flash";
+// `gemini-flash-latest` is a rolling alias that always points at the current
+// stable Flash model, so it won't 404 when a specific dated version is retired.
+const MODEL = "gemini-flash-latest";
 
 const SYSTEM_INSTRUCTION =
   "You write concise, current daily briefings. Lead with what is new or notable. " +
@@ -45,7 +47,7 @@ export async function generateBriefing(
     contents: buildPrompt(title, description),
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
-      // gemini-2.5-flash requires the current `googleSearch` grounding tool
+      // Current Gemini models require the `googleSearch` grounding tool
       // (the `googleSearchRetrieval` key is for the deprecated 1.5-era API).
       tools: [{ googleSearch: {} }],
     },

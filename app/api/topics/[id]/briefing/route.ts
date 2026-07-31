@@ -56,7 +56,10 @@ export async function GET(request: Request, { params }: Ctx) {
   let generated;
   try {
     generated = await generateBriefing(topic.title, topic.description);
-  } catch {
+  } catch (err) {
+    // Surface the real cause (bad model, quota/429, auth) in the server logs;
+    // the client still gets a generic 502 and no row is inserted.
+    console.error("[briefing] generation failed:", err);
     return NextResponse.json({ error: "generation failed" }, { status: 502 });
   }
 
