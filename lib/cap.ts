@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 
-export const DAILY_CAP = 10;
+export const DAILY_CAP = 25;
 
 function startOfLocalDay(now: Date): Date {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
