@@ -32,14 +32,22 @@ describe("POST /api/signup", () => {
     expect(json).toEqual({ id: "u1", email: "a@b.com" });
   });
 
-  it("returns 409 when the email already exists", async () => {
+  it("returns 409 with a reason when the email already exists", async () => {
     (prisma.user.findUnique as any).mockResolvedValue({ id: "u1", email: "a@b.com" });
     const res = await POST(req({ email: "a@b.com", password: "hunter2" }));
     expect(res.status).toBe(409);
+    expect((await res.json()).reason).toMatch(/already registered/i);
   });
 
-  it("returns 400 on invalid input", async () => {
-    const res = await POST(req({ email: "not-an-email", password: "" }));
+  it("returns 400 with a password-length reason on a weak password", async () => {
+    const res = await POST(req({ email: "a@b.com", password: "123" }));
     expect(res.status).toBe(400);
+    expect((await res.json()).reason).toMatch(/at least 6 characters/i);
+  });
+
+  it("returns 400 with an email reason on an invalid email", async () => {
+    const res = await POST(req({ email: "not-an-email", password: "hunter2" }));
+    expect(res.status).toBe(400);
+    expect((await res.json()).reason).toMatch(/valid email/i);
   });
 });
