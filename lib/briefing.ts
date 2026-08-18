@@ -16,7 +16,7 @@ const SYSTEM_INSTRUCTION =
   "You write concise, current daily briefings. Search the web for the latest " +
   "information, then lead with what is new or notable. Be factual, cite your " +
   "sources, and keep it under ~400 words. Use short markdown sections. If little " +
-  "is new, say so plainly.";
+  "is new, say so plainly. Do not use em dashes.";
 
 export function buildPrompt(title: string, description?: string | null): string {
   const lines = [`Write today's briefing about: ${title}.`];
