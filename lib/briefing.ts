@@ -10,7 +10,7 @@ const MODEL = "claude-haiku-4-5";
 
 // Cap searches per briefing so a single generation can't rack up many billed
 // web searches ($10 / 1000).
-const MAX_SEARCHES = 5;
+const MAX_SEARCHES = 3;
 
 const SYSTEM_INSTRUCTION =
   "You write concise, current daily briefings. Search the web for the latest " +
