@@ -31,7 +31,9 @@ export async function GET(request: Request, { params }: Ctx) {
   const topic = await prisma.topic.findFirst({ where: { id, userId } });
   if (!topic) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const refresh = new URL(request.url).searchParams.get("refresh") === "true";
+  const searchParams = new URL(request.url).searchParams;
+  const refresh = searchParams.get("refresh") === "true";
+  const tz = searchParams.get("tz") ?? undefined;
 
   const latest = await prisma.briefing.findFirst({
     where: { topicId: id },
@@ -41,7 +43,7 @@ export async function GET(request: Request, { params }: Ctx) {
   const cachedSources = (latest?.sources as Source[] | null) ?? [];
 
   // Serve fresh cache unless a refresh was explicitly requested.
-  if (!refresh && latest && isFresh(latest.generatedAt)) {
+  if (!refresh && latest && isFresh(latest.generatedAt, new Date(), tz)) {
     return serve(latest.content, cachedSources, latest.generatedAt, true, false);
   }
 
