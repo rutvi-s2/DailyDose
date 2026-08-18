@@ -35,7 +35,7 @@ describe("parseResponse", () => {
       },
     ];
     const out = parseResponse(content);
-    expect(out.content).toBe("Big trade today. The Warriors made a move.");
+    expect(out.content).toBe("Big trade today.\n\nThe Warriors made a move.");
     expect(out.sources).toEqual([
       { title: "ESPN", url: "https://espn.com/x" },
       { title: "The Athletic", url: "https://theathletic.com/y" },

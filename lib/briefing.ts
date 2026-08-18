@@ -16,7 +16,9 @@ const SYSTEM_INSTRUCTION =
   "You write concise, current daily briefings. Search the web for the latest " +
   "information, then lead with what is new or notable. Be factual, cite your " +
   "sources, and keep it under ~400 words. Use short markdown sections. If little " +
-  "is new, say so plainly. Do not use em dashes.";
+  "is new, say so plainly. Do not use em dashes. Output only the briefing itself: " +
+  "no preamble, no meta commentary about searching or what you are about to do, " +
+  "and no closing remarks. Start directly with the first markdown heading.";
 
 export function buildPrompt(title: string, description?: string | null): string {
   const lines = [`Write today's briefing about: ${title}.`];
@@ -39,7 +41,7 @@ export function parseResponse(content: unknown): GeneratedBriefing {
   for (const block of blocks) {
     if ((block as any)?.type !== "text") continue;
     const text = (block as any).text;
-    if (typeof text === "string") textParts.push(text);
+    if (typeof text === "string" && text.trim()) textParts.push(text.trim());
 
     const citations = (block as any).citations;
     if (!Array.isArray(citations)) continue;
@@ -52,7 +54,11 @@ export function parseResponse(content: unknown): GeneratedBriefing {
     }
   }
 
-  return { content: textParts.join("").trim(), sources };
+  // Join separate text blocks with a blank line. The web_search tool sometimes
+  // makes Claude emit a short lead-in block before the briefing; joining with
+  // "" would glue it onto the first heading (e.g. "...for you.## Title") and
+  // break the markdown. A blank line keeps blocks as distinct paragraphs.
+  return { content: textParts.join("\n\n"), sources };
 }
 
 export async function generateBriefing(
