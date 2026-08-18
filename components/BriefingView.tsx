@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
+import styles from "./BriefingView.module.css";
 
 type Source = { title: string; url: string };
 type Briefing = {
@@ -30,7 +31,10 @@ export function BriefingView({ topicId }: { topicId: string }) {
   const load = useCallback(async (refresh: boolean) => {
     setLoading(true);
     setError(false);
-    const url = `/api/topics/${topicId}/briefing${refresh ? "?refresh=true" : ""}`;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const params = new URLSearchParams({ tz });
+    if (refresh) params.set("refresh", "true");
+    const url = `/api/topics/${topicId}/briefing?${params.toString()}`;
     const res = await fetch(url);
     if (!res.ok) {
       setError(true);
@@ -47,11 +51,24 @@ export function BriefingView({ topicId }: { topicId: string }) {
 
   return (
     <div>
-      <Link href="/">← Back to wall</Link>
-      <button onClick={() => load(true)} disabled={loading}>Refresh</button>
+      <div className={styles.toolbar}>
+        <Link href="/" className={styles.back}>← Back to wall</Link>
+        <button className="btn-ghost" onClick={() => load(true)} disabled={loading}>Refresh</button>
+      </div>
 
-      {loading && <p>Loading…</p>}
-      {error && <p role="alert">Couldn&apos;t generate — try again.</p>}
+      {loading && (
+        <div className={styles.loading}>
+          <p className={styles.loadingLabel}>Generating your briefing…</p>
+          <div
+            className={styles.track}
+            role="progressbar"
+            aria-label="Generating briefing"
+          >
+            <div className={styles.bar} />
+          </div>
+        </div>
+      )}
+      {error && <p role="alert" className={styles.error}>Couldn&apos;t generate — try again.</p>}
 
       {data?.limitReached && (
         <p role="status">Daily limit reached — try again tomorrow.</p>
@@ -59,10 +76,10 @@ export function BriefingView({ topicId }: { topicId: string }) {
 
       {data?.content && (
         <>
-          <p>Generated {timeAgo(data.generatedAt)}</p>
+          <p className={styles.meta}>Generated {timeAgo(data.generatedAt)}</p>
           <ReactMarkdown>{data.content}</ReactMarkdown>
           {data.sources.length > 0 && (
-            <section>
+            <section className={styles.sources}>
               <h2>Sources</h2>
               <ul>
                 {data.sources.map((s) => (

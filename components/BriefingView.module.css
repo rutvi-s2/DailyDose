@@ -1,0 +1,85 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.back {
+  color: var(--ink);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.back:hover {
+  text-decoration: none;
+  color: var(--primary);
+}
+
+.meta {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-4);
+}
+
+.error {
+  color: var(--danger);
+}
+
+/* Indeterminate progress bar for unknown-duration generation. */
+.loading {
+  margin: var(--space-6) 0;
+}
+
+.loadingLabel {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-2);
+}
+
+.track {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 40%;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  animation: slide 1.2s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    animation: pulse 1.4s ease-in-out infinite;
+    width: 100%;
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+.sources {
+  margin-top: var(--space-6);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
