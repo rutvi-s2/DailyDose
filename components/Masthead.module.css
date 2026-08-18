@@ -1,0 +1,37 @@
+.masthead {
+  text-align: center;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: var(--space-3) 0 var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.title {
+  font-family: Georgia, "Times New Roman", "Times", serif;
+  font-weight: 800;
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink);
+  margin: 0;
+}
+
+.dateline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.dateline::before,
+.dateline::after {
+  content: "";
+  width: 32px;
+  height: 1px;
+  background: var(--border-strong);
+}

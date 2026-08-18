@@ -1,0 +1,44 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 35, 32, 0.35);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-7) var(--space-4);
+  z-index: 50;
+}
+
+.dialog {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6);
+}
+
+.title {
+  margin: 0 var(--space-6) var(--space-5) 0;
+}
+
+.close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  line-height: 1;
+  font-size: var(--text-lg);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid transparent;
+}
+
+.close:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
