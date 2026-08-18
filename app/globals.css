@@ -1,0 +1,175 @@
+/*
+ * DailyDose design tokens + base styles.
+ * Personality: clean & modern, light surfaces with espresso-dark accents,
+ * amber as the primary interactive color. See docs/superpowers/style-guide.md.
+ */
+
+:root {
+  /* Surfaces */
+  --bg: #faf8f5;          /* warm off-white page background */
+  --surface: #ffffff;     /* cards, inputs */
+  --surface-hover: #fdfbf8;
+  --border: #ece7e0;      /* warm gray hairline */
+  --border-strong: #ddd5ca;
+
+  /* Ink (dark accents) */
+  --ink: #2b2320;         /* headings, nav, primary text on light */
+  --ink-soft: #6b625b;    /* secondary text, captions */
+  --ink-faint: #a89e94;   /* placeholders, disabled */
+
+  /* Primary (amber) */
+  --primary: #d97706;
+  --primary-hover: #b45f04;
+  --primary-contrast: #ffffff;
+  --primary-tint: #fdf3e7; /* faint amber wash for hover/selected surfaces */
+
+  /* Feedback */
+  --danger: #b91c1c;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(43, 35, 32, 0.06);
+  --shadow-md: 0 4px 14px rgba(43, 35, 32, 0.08);
+
+  /* Type scale */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --text-xs: 0.8125rem;   /* 13px */
+  --text-sm: 0.9375rem;   /* 15px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.25rem;     /* 20px */
+  --text-xl: 1.75rem;     /* 28px */
+
+  /* Layout */
+  --content-max: 1040px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+}
+
+h1 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h2 {
+  font-size: var(--text-lg);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons: default = primary amber. Add .btn-ghost for a quiet variant. */
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--border-strong);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--ink-soft);
+}
+
+/* Inputs */
+input {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-faint);
+}
+
+/* Auto-growing description textareas: styled like inputs, no manual resize. */
+textarea {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  resize: none;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

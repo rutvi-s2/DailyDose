@@ -1,0 +1,43 @@
+.form {
+  max-width: 360px;
+  margin: var(--space-7) auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+}
+
+.form h1 {
+  text-align: center;
+  margin-bottom: var(--space-2);
+}
+
+.switch {
+  background: transparent;
+  color: var(--ink-soft);
+  border: none;
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.switch:hover:not(:disabled) {
+  background: transparent;
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.error {
+  color: var(--danger);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.forgot {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
