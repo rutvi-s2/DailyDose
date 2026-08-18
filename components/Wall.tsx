@@ -90,7 +90,11 @@ export function Wall() {
         </Modal>
       )}
 
-      {loaded && topics.length === 0 ? (
+      {!loaded ? (
+        <div className={styles.loading}>
+          <div className={styles.spinner} role="status" aria-label="Loading topics" />
+        </div>
+      ) : topics.length === 0 ? (
         <p className={styles.empty}>No topics yet — add one above to get your first briefing.</p>
       ) : (
         <ul className={styles.grid}>
