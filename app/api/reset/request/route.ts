@@ -7,7 +7,12 @@ import { sendResetEmail } from "@/lib/email";
 const schema = z.object({ email: z.string().email() });
 
 function appUrl(): string {
-  return process.env.APP_URL ?? "http://localhost:3000";
+  // Prefer an explicit APP_URL. On Vercel, fall back to the auto-provided
+  // deployment host so reset links point at the live site even if APP_URL
+  // isn't set. Local dev falls back to localhost.
+  if (process.env.APP_URL) return process.env.APP_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
 }
 
 export async function POST(request: Request) {

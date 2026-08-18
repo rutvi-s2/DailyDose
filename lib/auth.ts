@@ -25,6 +25,9 @@ export async function authorizeCredentials(
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  // Trust the deployment host header (required on Vercel and other proxies so
+  // Auth.js builds correct callback URLs from the request instead of a fixed one).
+  trustHost: true,
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
