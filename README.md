@@ -1,4 +1,4 @@
-# Wassup
+# DailyDose
 
 Daily briefings on the topics you care about.
 
@@ -20,5 +20,5 @@ Daily briefings on the topics you care about.
 
 - Sign up / sign in (email + password).
 - Add topics to your wall; click one for a web-grounded briefing.
-- Briefings cache for 24h; Refresh forces a new one.
+- Briefings cache until they are 24h old or the calendar day changes; Refresh forces a new one.
 - Limit: 10 briefing generations per user per day.

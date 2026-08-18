@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
+import styles from "./AuthForm.module.css";
 
 export function AuthForm() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -19,7 +21,8 @@ export function AuthForm() {
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
-        setError(res.status === 409 ? "Email already registered" : "Signup failed");
+        const data = await res.json().catch(() => null);
+        setError(data?.reason ?? "Signup failed. Please try again.");
         return;
       }
     }
@@ -29,8 +32,8 @@ export function AuthForm() {
   }
 
   return (
-    <form onSubmit={onSubmit}>
-      <h1>Wassup</h1>
+    <form onSubmit={onSubmit} className={styles.form}>
+      <h1>DailyDose</h1>
       <input
         type="email" placeholder="Email" value={email} required
         onChange={(e) => setEmail(e.target.value)}
@@ -39,14 +42,20 @@ export function AuthForm() {
         type="password" placeholder="Password" value={password} required
         onChange={(e) => setPassword(e.target.value)}
       />
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert" className={styles.error}>{error}</p>}
       <button type="submit">{mode === "signin" ? "Sign in" : "Create account"}</button>
       <button
         type="button"
+        className={styles.switch}
         onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
       >
         {mode === "signin" ? "Create account" : "Have an account? Sign in"}
       </button>
+      {mode === "signin" && (
+        <Link href="/reset" className={styles.forgot}>
+          Forgot password?
+        </Link>
+      )}
     </form>
   );
 }
