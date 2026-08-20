@@ -54,11 +54,45 @@ export function parseResponse(content: unknown): GeneratedBriefing {
     }
   }
 
-  // Join separate text blocks with a blank line. The web_search tool sometimes
-  // makes Claude emit a short lead-in block before the briefing; joining with
-  // "" would glue it onto the first heading (e.g. "...for you.## Title") and
-  // break the markdown. A blank line keeps blocks as distinct paragraphs.
-  return { content: textParts.join("\n\n"), sources };
+  return { content: joinTextBlocks(textParts), sources };
+}
+
+// The web_search tool makes Claude emit MANY small text blocks — often one per
+// cited sentence, plus tiny connectors like "." or " and". These are pieces of
+// continuous prose, so they must be joined with a space, not a blank line, or
+// the briefing shatters into one-fragment-per-line. The exception: a block that
+// begins a new markdown construct (heading, list item, blockquote, hr) needs a
+// blank line before it so it renders as a block instead of being glued onto the
+// previous sentence (e.g. "...One Night Only## Streaming").
+function joinTextBlocks(parts: string[]): string {
+  const startsMarkdownBlock = (s: string) => /^(#{1,6}\s|[-*+]\s|\d+\.\s|>|\|)/.test(s);
+
+  let out = "";
+  let prev = "";
+  for (const part of parts) {
+    if (!out) {
+      out = part;
+      prev = part;
+      continue;
+    }
+    // A blank line if this fragment OR the previous one is a block-level
+    // construct (a heading needs a blank line before AND after it), or if a
+    // fragment already contains its own newlines. Otherwise a single space to
+    // keep the sentence flowing.
+    const needsBreak =
+      startsMarkdownBlock(part) ||
+      startsMarkdownBlock(prev) ||
+      /\n/.test(part);
+    const boundary = needsBreak ? "\n\n" : " ";
+    // Avoid a doubled space before punctuation-only fragments like ".".
+    if (boundary === " " && /^[.,;:!?)]/.test(part)) {
+      out += part;
+    } else {
+      out += boundary + part;
+    }
+    prev = part;
+  }
+  return out;
 }
 
 export async function generateBriefing(

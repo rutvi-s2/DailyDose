@@ -35,11 +35,41 @@ describe("parseResponse", () => {
       },
     ];
     const out = parseResponse(content);
-    expect(out.content).toBe("Big trade today.\n\nThe Warriors made a move.");
+    // Prose blocks join with a single space, not a blank line.
+    expect(out.content).toBe("Big trade today. The Warriors made a move.");
     expect(out.sources).toEqual([
       { title: "ESPN", url: "https://espn.com/x" },
       { title: "The Athletic", url: "https://theathletic.com/y" },
     ]);
+  });
+
+  it("joins many cited fragments into flowing prose, not one line each", () => {
+    // Mirrors how the web_search tool splits a paragraph across text blocks,
+    // including tiny connector/punctuation-only blocks.
+    const content = [
+      { type: "text", text: "Standouts so far are La La Land and One Night Only" },
+      { type: "text", text: "." },
+      { type: "text", text: "Looking ahead," },
+      { type: "text", text: "Coyote vs. Acme finally arrives later this month." },
+    ];
+    const out = parseResponse(content);
+    expect(out.content).toBe(
+      "Standouts so far are La La Land and One Night Only. Looking ahead, Coyote vs. Acme finally arrives later this month.",
+    );
+  });
+
+  it("puts a blank line before markdown headings and list items", () => {
+    const content = [
+      { type: "text", text: "Intro sentence." },
+      { type: "text", text: "## Streaming Highlights" },
+      { type: "text", text: "Netflix drops a thriller." },
+      { type: "text", text: "- First bullet" },
+      { type: "text", text: "- Second bullet" },
+    ];
+    const out = parseResponse(content);
+    expect(out.content).toBe(
+      "Intro sentence.\n\n## Streaming Highlights\n\nNetflix drops a thriller.\n\n- First bullet\n\n- Second bullet",
+    );
   });
 
   it("returns empty content and no sources when there are no text blocks", () => {
