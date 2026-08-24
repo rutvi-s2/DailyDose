@@ -58,6 +58,21 @@ describe("parseResponse", () => {
     );
   });
 
+  it("keeps a trailing period attached even when it arrives wrapped in newlines", () => {
+    // The web_search tool sometimes emits the sentence-ending period as its own
+    // block padded with newlines, e.g. after a cited clause. It must glue to the
+    // prose, not land on its own line.
+    const content = [
+      { type: "text", text: "Spa Weekend stars Isla Fisher, Leslie Mann, and Anna Faris" },
+      { type: "text", text: "\n\n." },
+      { type: "text", text: "In Mutiny, Jason Statham boards a cargo ship." },
+    ];
+    const out = parseResponse(content);
+    expect(out.content).toBe(
+      "Spa Weekend stars Isla Fisher, Leslie Mann, and Anna Faris. In Mutiny, Jason Statham boards a cargo ship.",
+    );
+  });
+
   it("puts a blank line before markdown headings and list items", () => {
     const content = [
       { type: "text", text: "Intro sentence." },

@@ -65,32 +65,35 @@ export function parseResponse(content: unknown): GeneratedBriefing {
 // blank line before it so it renders as a block instead of being glued onto the
 // previous sentence (e.g. "...One Night Only## Streaming").
 function joinTextBlocks(parts: string[]): string {
-  const startsMarkdownBlock = (s: string) => /^(#{1,6}\s|[-*+]\s|\d+\.\s|>|\|)/.test(s);
+  // Does a fragment begin (after any leading whitespace) a new markdown block?
+  const startsMarkdownBlock = (s: string) =>
+    /^\s*(#{1,6}\s|[-*+]\s|\d+\.\s|>|\|)/.test(s);
+  // Does the fragment's meaningful content start with trailing punctuation that
+  // belongs to the PREVIOUS sentence (e.g. a lone "." or ".\n\nNext...")?
+  const startsWithClosingPunct = (s: string) => /^\s*[.,;:!?)]/.test(s);
 
   let out = "";
   let prev = "";
-  for (const part of parts) {
+  for (const raw of parts) {
     if (!out) {
-      out = part;
-      prev = part;
+      out = raw;
+      prev = raw;
       continue;
     }
-    // A blank line if this fragment OR the previous one is a block-level
-    // construct (a heading needs a blank line before AND after it), or if a
-    // fragment already contains its own newlines. Otherwise a single space to
-    // keep the sentence flowing.
-    const needsBreak =
-      startsMarkdownBlock(part) ||
-      startsMarkdownBlock(prev) ||
-      /\n/.test(part);
-    const boundary = needsBreak ? "\n\n" : " ";
-    // Avoid a doubled space before punctuation-only fragments like ".".
-    if (boundary === " " && /^[.,;:!?)]/.test(part)) {
-      out += part;
-    } else {
-      out += boundary + part;
+
+    // A trailing "." (etc.) — possibly wrapped in newlines like "\n\n." — is the
+    // end of the previous sentence. Glue it directly, no space, no line break.
+    if (startsWithClosingPunct(raw)) {
+      out += raw.trimStart();
+      prev = raw;
+      continue;
     }
-    prev = part;
+
+    // A blank line only around real block-level constructs (a heading needs one
+    // before AND after). Everything else is continuous prose → single space.
+    const needsBreak = startsMarkdownBlock(raw) || startsMarkdownBlock(prev);
+    out += (needsBreak ? "\n\n" : " ") + raw.trim();
+    prev = raw;
   }
   return out;
 }
