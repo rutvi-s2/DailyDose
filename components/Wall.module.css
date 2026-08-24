@@ -48,6 +48,8 @@
   letter-spacing: -0.01em;
   /* leave room for the edit + delete buttons */
   padding-right: var(--space-6);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .desc {
@@ -58,6 +60,9 @@
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  /* Wrap long unbroken text (e.g. a pasted URL) instead of overflowing. */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tileActions {

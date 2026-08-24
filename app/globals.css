@@ -66,6 +66,9 @@ html,
 body {
   margin: 0;
   padding: 0;
+  /* Safety net: never allow content to force the page wider than the screen. */
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -146,6 +149,9 @@ input {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-3);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 input::placeholder,
@@ -164,6 +170,12 @@ textarea {
   resize: none;
   overflow: hidden;
   line-height: 1.5;
+  /* Never let a long description push the textarea (and page) wider than its
+   * container — key on narrow mobile screens. */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
 }
 
 input:focus-visible,
